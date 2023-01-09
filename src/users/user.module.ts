@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { LocalStrategy } from "src/commons/auth/jwt-local.strategy";
+import { LocalAccessToken, LocalRefreshToken } from "src/commons/auth/jwt-local.strategy";
 import { UserController } from "./user.controller";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
@@ -13,7 +13,8 @@ import { UserService } from "./user.service";
     ],
     providers: [
         UserService,
-        LocalStrategy
+        LocalAccessToken,
+        LocalRefreshToken
     ],
     controllers: [
         UserController,

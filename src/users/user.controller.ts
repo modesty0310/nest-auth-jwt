@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { Response } from "express";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { LoginUserDto } from "./dto/login-uiser.dto";
 import { User } from "./user.entity";
@@ -13,15 +14,23 @@ export class UserController {
     create(@Body() createUserDto: CreateUserDto): Promise<User> {        
         return this.userService.create(createUserDto)
     }
+
     @Post("login")
-    login(@Body() loginUserDto: LoginUserDto) {
-        return this.userService.login(loginUserDto);
-    }
-    @UseGuards(AuthGuard("local-jwt"))
-    @Get() 
-    findMe(@Req() req){
-        const email = req.user.email;
-        return this.userService.findOneUser(email)
+    login(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+        return this.userService.login(loginUserDto, res);
     }
 
+    @UseGuards(AuthGuard("local-access-jwt"))
+    @Get() 
+    async findMe(@Req() req){
+        const email = req.user.email;
+        const user = await this.userService.findOneUser(email);
+        return {email: user.email,  id: user.id};
+    }
+
+    @UseGuards(AuthGuard("local-refresh-jwt"))
+    @Get('restore')
+    async resotreToken(@Req() req) {
+        return await this.userService.getAccessToken(req.user);
+    }
 }
