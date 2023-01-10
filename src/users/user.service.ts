@@ -7,6 +7,7 @@ import { User } from "./user.entity";
 import { LoginUserDto } from "./dto/login-uiser.dto";
 import { JwtService } from "@nestjs/jwt";
 import { Response } from "express";
+import { CreateSocialDto } from "./dto/create-social.dto";
 
 @Injectable()
 export class UserService {
@@ -42,7 +43,7 @@ export class UserService {
         return await this.getAccessToken(user);
     }
 
-    private async setRefreshToken(user: User, res: Response) {
+    private async setRefreshToken(user: User | CreateSocialDto, res: Response) {
         const payload = { email: user.email, sub: user.id };
         const refresh_token =  this.jwtService.sign(
             {payload},
@@ -64,5 +65,21 @@ export class UserService {
 
     async findOneUser(email: string): Promise<User> | null {
         return await this.userRepository.findOne({where: {email}});
+    }
+
+    async socialCreate(createSocialDto: CreateSocialDto):Promise<User> {
+        const email = createSocialDto.email;
+        const result = await this.userRepository.save({
+            email,
+        });
+        return result
+    }
+
+    async googleLogin(email: string, res: Response) {
+        let user = this.userRepository.findOne({where: {email}});
+        if (!user) {
+            user = await this.socialCreate({email});
+        }
+        await this.setRefreshToken(user, res);
     }
 }

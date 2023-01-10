@@ -33,4 +33,11 @@ export class UserController {
     async resotreToken(@Req() req) {
         return await this.userService.getAccessToken(req.user);
     }
+
+    @UseGuards(AuthGuard("social-google"))
+    @Get("google")
+    async googleLogin(@Req() req, @Res() res) {
+        const email = req.user.email;
+        await this.userService.googleLogin(email, res);
+    }
 }
