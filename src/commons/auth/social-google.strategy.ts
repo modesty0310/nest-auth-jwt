@@ -13,8 +13,6 @@ export class SocialGoogle extends PassportStrategy(Strategy, "social-google") {
     }
 
     async validate(accessToken, refreshToken, profile,) {
-        console.log(profile);
-        
         return profile._json;
     }
 }

@@ -7,7 +7,6 @@ import { User } from "./user.entity";
 import { LoginUserDto } from "./dto/login-uiser.dto";
 import { JwtService } from "@nestjs/jwt";
 import { Response } from "express";
-import { CreateSocialDto } from "./dto/create-social.dto";
 
 @Injectable()
 export class UserService {
@@ -43,15 +42,17 @@ export class UserService {
         return await this.getAccessToken(user);
     }
 
-    private async setRefreshToken(user: User | CreateSocialDto, res: Response) {
+    private async setRefreshToken(user: User, res: Response) {
         const payload = { email: user.email, sub: user.id };
         const refresh_token =  this.jwtService.sign(
             {payload},
             {secret: 'secret', expiresIn: '1h'}
         );      
+        
         res.cookie('refresh_token', refresh_token, {
             httpOnly: true,
-            maxAge: 30 * 24 * 60 * 60 * 1000 //30 day
+            maxAge: 30 * 24 * 60 * 60 * 1000, //30 day
+            path: "/",
         });
     }
 
@@ -67,8 +68,7 @@ export class UserService {
         return await this.userRepository.findOne({where: {email}});
     }
 
-    async socialCreate(createSocialDto: CreateSocialDto):Promise<User> {
-        const email = createSocialDto.email;
+    async socialCreate(email: string):Promise<User> {
         const result = await this.userRepository.save({
             email,
         });
@@ -76,10 +76,12 @@ export class UserService {
     }
 
     async googleLogin(email: string, res: Response) {
-        let user = this.userRepository.findOne({where: {email}});
+        let user = await this.userRepository.findOne({where: {email}});
         if (!user) {
-            user = await this.socialCreate({email});
+            user = await this.socialCreate(email);
         }
         await this.setRefreshToken(user, res);
+        
+        res.redirect('http://localhost:5500/fornt/index.html');
     }
 }
