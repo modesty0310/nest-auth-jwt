@@ -3,6 +3,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { LocalAccessToken, LocalRefreshToken } from "src/commons/auth/jwt-local.strategy";
 import { SocialGoogle } from "src/commons/auth/social-google.strategy";
+import { SocialNaver } from "src/commons/auth/social-naver.strategy";
 import { UserController } from "./user.controller";
 import { User } from "./user.entity";
 import { UserService } from "./user.service";
@@ -16,7 +17,8 @@ import { UserService } from "./user.service";
         UserService,
         LocalAccessToken,
         LocalRefreshToken,
-        SocialGoogle
+        SocialGoogle,
+        SocialNaver
     ],
     controllers: [
         UserController,

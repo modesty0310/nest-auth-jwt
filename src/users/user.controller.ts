@@ -37,7 +37,19 @@ export class UserController {
     @UseGuards(AuthGuard("social-google"))
     @Get("google")
     async googleLogin(@Req() req, @Res() res) {
+        this.socialLogin(req, res);
+    }
+
+    @UseGuards(AuthGuard("social-naver"))
+    @Get("naver")
+    async naverLogin(@Req() req, @Res() res) {
+        this.socialLogin(req, res);
+    }
+
+    async socialLogin(req, res: Response) {
         const email = req.user.email;
-        await this.userService.googleLogin(email, res);
+        console.log(email);
+        
+        await this.userService.socialLogin(email, res);
     }
 }

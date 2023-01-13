@@ -75,7 +75,7 @@ export class UserService {
         return result
     }
 
-    async googleLogin(email: string, res: Response) {
+    async socialLogin(email: string, res: Response) {
         let user = await this.userRepository.findOne({where: {email}});
         if (!user) {
             user = await this.socialCreate(email);
